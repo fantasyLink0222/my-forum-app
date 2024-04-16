@@ -5,6 +5,13 @@ export function API({ stack }: StackContext) {
   const api = new Api(stack, "api", {
     routes: {
       "GET /": "packages/functions/src/lambda.handler",
+      "GET /threads": "packages/functions/src/thread.handler",
+      "POST /threads": "packages/functions/src/thread.handler",
+      "GET /threads/{id}": "packages/functions/src/thread.handler",
+      "PUT /threads/{id}": "packages/functions/src/thread.handler",
+      "DELETE /threads/{id}": "packages/functions/src/thread.handler",
+
+      
       
     },
   });
