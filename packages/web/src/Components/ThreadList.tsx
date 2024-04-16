@@ -1,32 +1,41 @@
 
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+
 
 import axios from 'axios';
 
 const ThreadList = () => {
-  const [threads, setThreads] = useState<any[]>([]);
-  const navigate = useNavigate();
+  const [threads, setThreads] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    axios.get( 
-   import.meta.env.VITE_APP_API_URL+
-    '/threads').then((response) => {
-      setThreads(response.data);
-    });
+    setIsLoading(true);
+    axios.get(import.meta.env.VITE_APP_API_URL+'/threads')
+      .then((response) => {
+        setThreads(response.data);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, []);
-  
+
   
   const handleDeleteThread = (id: any) => {
+    setIsLoading(true);
     axios.delete(import.meta.env.VITE_APP_API_URL+`/threads/${id}`)
       .then(() => {
-        // Refresh the list after deleting
-        setThreads(threads.filter(thread => thread.id !== id));
+        setThreads(threads.filter((thread: any) => thread.id !== id));
       })
-      .catch(error => console.error('Error deleting thread:', error));
+      .catch(error => console.error('Error deleting thread:', error))
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
- 
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
 
   return (
