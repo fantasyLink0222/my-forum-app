@@ -1,54 +1,77 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-import {Link} from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import axios from 'axios';
 
 const Thread = () => {
+  type Thread = {
+    id: number;
+    title: string;
+    content: string;
+  };
   const { id } = useParams<{ id: string }>();
-  const [thread, setThread] = useState<any>(null);
+  const [thread, setThread] = useState<Thread | null>(null);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get(import.meta.env.VITE_APP_API_URL+`/threads/${id}`).then((response) => {
-      setThread(response.data);
-    });
+    // Fetch thread data DO NOT USE AXIOS HERE
+    fetch(import.meta.env.VITE_APP_API_URL + `/threads/${id}`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Failed to fetch thread: ${response.statusText}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setThread(data);
+      })
+      .catch((error) => {
+        setError(error.message);
+      });
   }, [id]);
 
   const handleDeleteThread = () => {
-    axios.delete(import.meta.env.VITE_APP_API_URL+`/threads/${id}`)
-      .then(() => {
+    // Delete thread DO NOT USE AXIOS HERE
+    fetch(import.meta.env.VITE_APP_API_URL + `/threads/${id}`, {
+      method: 'DELETE',
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Failed to delete thread: ${response.statusText}`);
+        }
         navigate('/');
       })
-      .catch(error => console.error('Error deleting thread:', error));
+      .catch((error) => {
+        setError(error.message);
+      });
   };
 
-
-
-  
   if (error) {
-    return <div className="text-red-500">Error: {error}</div>;
+    return <div className='text-red-500'>Error: {error}</div>;
   }
 
   if (!thread) {
-    return <div>Loading thread...</div>;  // Shows while thread data is null and no error
+    return <div>Loading thread...</div>; // Shows while thread data is null and no error
   }
 
   return (
-    <div className="p-4">
-      <h1 className="text-xl font-bold text-gray-800">{thread?.title}</h1>
-      <p className="mt-2 text-gray-600">{thread?.content}</p>
+    <div className='p-4'>
+      <h1 className='text-xl font-bold text-gray-800'>{thread?.title}</h1>
+      <p className='mt-2 text-gray-600'>{thread?.content}</p>
       {/* Display comments here */}
-      <button onClick={handleDeleteThread} className="mt-2 px-4 py-2 text-white bg-red-500 hover:bg-red-700 rounded">
+      <button
+        onClick={handleDeleteThread}
+        className='mt-2 px-4 py-2 text-white bg-red-500 hover:bg-red-700 rounded'
+      >
         Delete
       </button>
-      
-      <button className="mt-2 ml-2 px-4 py-2 text-white bg-red-500 hover:bg-red-700 rounded">
-       <Link to={`/edit-thread/${thread?.id}` } >Edit</Link>
-       </button>
-       
+
+      <button className='mt-2 ml-2 px-4 py-2 text-white bg-red-500 hover:bg-red-700 rounded'>
+        <Link to={`/edit-thread/${thread?.id}`}>Edit</Link>
+      </button>
     </div>
   );
 };
