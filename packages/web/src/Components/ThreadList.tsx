@@ -29,7 +29,7 @@ const ThreadList = () => {
       .finally(() => {
         setIsLoading(false);
       });
-  });
+  }, []);
 
   const handleDeleteThread = (id: number) => {
     setIsLoading(true);

@@ -3,8 +3,6 @@ import { useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 
-import axios from 'axios';
-
 const Thread = () => {
   type Thread = {
     id: number;
