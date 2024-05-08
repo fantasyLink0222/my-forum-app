@@ -79,6 +79,11 @@ const ThreadList = () => {
             </Link>
             <p className='text-sm font-thin text-gray-500'>
               Posted {formatDateString(thread.createdAt)}
+              {thread.updatedAt && (
+                <span>
+                  {', Updated '} {formatDateString(thread.updatedAt)}
+                </span>
+              )}
             </p>
             <p className='text-xl font-serif text-gray-500'>{thread.content}</p>
             <button

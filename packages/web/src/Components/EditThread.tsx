@@ -2,40 +2,63 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+type Thread = {
+  id: number;
+  title: string;
+  content: string;
+  createdAt: string;
+  updatedAt?: string;
+};
+
 const EditThread = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>(); // Ensure the `id` parameter is typed
+  const [thread, setThread] = useState<Thread | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const [thread, setThread] = useState({ title: '', content: '' });
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setIsLoading(true);
+    // Use `GET` to fetch the thread data
     axios
       .get(import.meta.env.VITE_APP_API_URL + `/threads/${id}`)
       .then((response) => {
-        setThread(response.data);
-        setIsLoading(false);
+        const data: Thread[] = response.data;
+        if (data.length > 0) {
+          setThread(data[0]); // Extract the first object from the array
+        } else {
+          setError('Thread not found.');
+        }
       })
       .catch((error) => {
-        console.error('Error fetching thread:', error);
+        setError(error.message);
       });
-  }, [id, navigate]);
+  }, [id]);
 
   const handleChange = (event: { target: { name: string; value: string } }) => {
-    const { name, value } = event.target;
-    setThread((prev) => ({ ...prev, [name]: value }));
+    if (thread) {
+      setThread({ ...thread, [event.target.name]: event.target.value });
+    }
   };
 
   const handleSubmit = (event: { preventDefault: () => void }) => {
     event.preventDefault();
-    axios
-      .put(import.meta.env.VITE_APP_API_URL + `/threads/${id}`, thread)
-      .then(() => navigate('/')) // Redirect to home after submit
-      .catch((error) => console.error('Error updating thread:', error));
+    if (thread) {
+      const updatedThread: Thread = {
+        ...thread,
+        updatedAt: new Date().toISOString(), // Set the current timestamp as updatedAt
+      };
+      axios
+        .put(import.meta.env.VITE_APP_API_URL + `/threads/${id}`, updatedThread)
+        .then(() => navigate('/')) // Redirect to home after submit
+        .catch((error) => console.error('Error updating thread:', error));
+    }
   };
 
-  if (isLoading) {
-    return <div>Loading...</div>;
+  if (error) {
+    return <div className='text-red-500'>Error: {error}</div>;
+  }
+
+  if (!thread) {
+    return <div>Loading thread...</div>; // Shows while thread data is null and no error
   }
 
   return (
@@ -50,7 +73,6 @@ const EditThread = () => {
           <input
             type='text'
             name='title'
-            placeholder={thread.title}
             value={thread.title}
             onChange={handleChange}
             className='mt-1 p-2 w-full border rounded'
@@ -60,7 +82,6 @@ const EditThread = () => {
           Content:
           <textarea
             name='content'
-            placeholder={thread.content}
             value={thread.content}
             onChange={handleChange}
             className='mt-1 p-2 w-full border rounded h-40'

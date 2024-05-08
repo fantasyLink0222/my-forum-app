@@ -38,18 +38,28 @@ app.delete('/threads/:id', async (c) => {
   await db.delete(threadsTable).where(eq(threadsTable.id, id));
   return c.json({ message: 'Thread deleted successfully' });
 });
+
 app.put('/threads/:id', async (c) => {
   const id = Number(c.req.param('id'));
   const body = await c.req.json();
-  const thread = body.thread;
+  const { title, content } = body; // Directly destructure the thread details
+  const updatedAt = new Date(); // Set the updated timestamp
+
+  // Update the thread in the database
   const updatedThread = await db
     .update(threadsTable)
-    .set(thread)
-    .where(eq(threadsTable.id, id));
+    .set({ title, content, updatedAt })
+    .where(eq(threadsTable.id, id))
+    .returning()
+    .execute();
+
+  if (updatedThread.length === 0) {
+    return c.json({ message: 'Thread not found' }, 404);
+  }
+
   return c.json({
     message: 'Thread updated successfully',
-    thread: updatedThread,
+    thread: updatedThread[0], // Return the first updated thread
   });
 });
-
 export const handler = handle(app);
