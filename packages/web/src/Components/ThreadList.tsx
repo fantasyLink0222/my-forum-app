@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { formatDateString } from '../utility/utils';
 import axios from 'axios';
 
 const ThreadList = () => {
@@ -7,8 +8,8 @@ const ThreadList = () => {
     id: number;
     title: string;
     content: string;
-    created_at?: string;
-    updated_at?: string;
+    createdAt: string;
+    updatedAt?: string;
   };
   const [threads, setThreads] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -57,7 +58,7 @@ const ThreadList = () => {
 
   return (
     <div className='p-4'>
-      <h1 className='text-2xl font-bold text-gray-800'>Forum Threads</h1>
+      <h1 className='text-6xl font-serif  text-gray-800'>forgit</h1>
       <Link
         to='/new-thread'
         className='inline-block mt-2 px-4 py-2 text-white bg-blue-500 hover:bg-blue-600 rounded'
@@ -74,10 +75,12 @@ const ThreadList = () => {
               to={`/threads/${thread.id}`}
               className='text-blue-500 hover:text-blue-600'
             >
-              {thread.title}
+              <h2 className='text-3xl font-bold'>{thread.title}</h2>
             </Link>
-            <p className='text-gray-500'>{thread.created_at}</p>
-            <p className='text-gray-500'>{thread.content}</p>
+            <p className='text-sm font-thin text-gray-500'>
+              Posted {formatDateString(thread.createdAt)}
+            </p>
+            <p className='text-xl font-serif text-gray-500'>{thread.content}</p>
             <button
               onClick={() => handleDeleteThread(thread.id)}
               className='mt-2 px-1 py-2 text-white bg-red-500 hover:bg-red-700 rounded'
