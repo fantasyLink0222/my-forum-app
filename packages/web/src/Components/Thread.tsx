@@ -4,27 +4,27 @@ import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 
 const Thread = () => {
-  type Thread = {
-    id: number;
-    title: string;
-    content: string;
-  };
-  const { id } = useParams<{ id: string }>();
-  const [thread, setThread] = useState<Thread | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const { id } = useParams();
+  const [thread, setThread] = useState();
+  const [error, setError] = useState();
   const navigate = useNavigate();
 
   useEffect(() => {
     // Fetch thread data DO NOT USE AXIOS HERE
-    fetch(import.meta.env.VITE_APP_API_URL + `/threads/${id}`)
+    fetch(import.meta.env.VITE_APP_API_URL + `/threads/${id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
       .then((response) => {
         if (!response.ok) {
           throw new Error(`Failed to fetch thread: ${response.statusText}`);
         }
         return response.json();
       })
-      .then((data) => {
-        setThread(data);
+      .then((response) => {
+        setThread(response.data);
       })
       .catch((error) => {
         setError(error.message);
@@ -57,8 +57,8 @@ const Thread = () => {
 
   return (
     <div className='p-4'>
-      <h1 className='text-xl font-bold text-gray-800'>{thread?.title}</h1>
-      <p className='mt-2 text-gray-600'>{thread?.content}</p>
+      <h1 className='text-xl font-bold text-gray-800'>{thread.title}</h1>
+      <p className='mt-2 text-gray-600'>{thread.content}</p>
       {/* Display comments here */}
       <button
         onClick={handleDeleteThread}
@@ -68,7 +68,7 @@ const Thread = () => {
       </button>
 
       <button className='mt-2 ml-2 px-4 py-2 text-white bg-red-500 hover:bg-red-700 rounded'>
-        <Link to={`/edit-thread/${thread?.id}`}>Edit</Link>
+        <Link to={`/edit-thread/${thread.id}`}>Edit</Link>
       </button>
     </div>
   );

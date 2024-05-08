@@ -8,7 +8,10 @@ const NewThread = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Create new thread DO NOT USE AXIOS HERE
+    if (!title.trim() || !content.trim()) {
+      alert('Both title and content are required.');
+      return;
+    }
     fetch(import.meta.env.VITE_APP_API_URL + '/threads', {
       method: 'POST',
       headers: {
@@ -42,6 +45,7 @@ const NewThread = () => {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           className='mt-1 p-2 w-full border rounded'
+          aria-label='Title'
         />
       </label>
       <label className='block mb-4'>
@@ -50,6 +54,7 @@ const NewThread = () => {
           value={content}
           onChange={(e) => setContent(e.target.value)}
           className='mt-1 p-2 w-full border rounded h-40'
+          aria-label='Content'
         />
       </label>
       <button

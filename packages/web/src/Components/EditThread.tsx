@@ -9,6 +9,7 @@ const EditThread = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    setIsLoading(true);
     axios
       .get(import.meta.env.VITE_APP_API_URL + `/threads/${id}`)
       .then((response) => {
@@ -17,7 +18,6 @@ const EditThread = () => {
       })
       .catch((error) => {
         console.error('Error fetching thread:', error);
-        navigate('/'); // Redirect if the thread is not found or error occurs
       });
   }, [id, navigate]);
 
@@ -50,6 +50,7 @@ const EditThread = () => {
           <input
             type='text'
             name='title'
+            placeholder={thread.title}
             value={thread.title}
             onChange={handleChange}
             className='mt-1 p-2 w-full border rounded'
@@ -59,6 +60,7 @@ const EditThread = () => {
           Content:
           <textarea
             name='content'
+            placeholder={thread.content}
             value={thread.content}
             onChange={handleChange}
             className='mt-1 p-2 w-full border rounded h-40'

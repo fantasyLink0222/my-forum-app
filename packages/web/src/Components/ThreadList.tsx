@@ -1,27 +1,27 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 const ThreadList = () => {
   type Thread = {
     id: number;
     title: string;
     content: string;
+    created_at?: string;
+    updated_at?: string;
   };
   const [threads, setThreads] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Fetch threads using axios
   useEffect(() => {
+    console.log('API URL:', import.meta.env.VITE_APP_API_URL);
     setIsLoading(true);
-    // Fetch threads DO NOT USE AXIOS HERE
-    fetch(import.meta.env.VITE_APP_API_URL + '/threads')
+
+    axios
+      .get(import.meta.env.VITE_APP_API_URL + '/threads')
       .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Failed to fetch threads: ${response.statusText}`);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        setThreads(data);
+        setThreads(response.data);
       })
       .catch((error) => {
         console.error('Error fetching threads:', error);
@@ -30,10 +30,10 @@ const ThreadList = () => {
         setIsLoading(false);
       });
   }, []);
-
+  console.log('threads', threads);
   const handleDeleteThread = (id: number) => {
     setIsLoading(true);
-    // Delete thread DO NOT USE AXIOS HERE
+
     fetch(import.meta.env.VITE_APP_API_URL + `/threads/${id}`, {
       method: 'DELETE',
     })
@@ -76,12 +76,16 @@ const ThreadList = () => {
             >
               {thread.title}
             </Link>
+            <p className='text-gray-500'>{thread.created_at}</p>
             <p className='text-gray-500'>{thread.content}</p>
             <button
               onClick={() => handleDeleteThread(thread.id)}
-              className='mt-2 px-4 py-2 text-white bg-red-500 hover:bg-red-700 rounded'
+              className='mt-2 px-1 py-2 text-white bg-red-500 hover:bg-red-700 rounded'
             >
               Delete
+            </button>
+            <button className='mt-2 ml-2 px-2 py-2 text-white bg-blue-500 hover:bg-red-700 rounded'>
+              <Link to={`/edit-thread/${thread.id}`}>Edit</Link>
             </button>
           </div>
         ))}
